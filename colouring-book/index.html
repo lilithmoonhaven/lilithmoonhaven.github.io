@@ -1336,7 +1336,7 @@
     <p>A Free Colouring Book — a gift from Lilith Moon Haven. Whimsical Finds, Gothic Art &amp; Creative Treasures. No payment, no signup — just colour.</p>
   </div>
 
-  <p class="top-lilith-link"><a href="/spaces/v2/raven-roses-colouring-book/">Try our other free colouring book — Raven &amp; Roses →</a></p>
+  <p class="top-lilith-link"><a href="https://raven-roses-cleaning.github.io/colouring-book/">Try our other free colouring book — Raven &amp; Roses →</a></p>
 
   <p class="top-tip">Tip: Add to Home Screen to keep this book on your phone like an app.</p>
 
@@ -1803,7 +1803,7 @@
     <span>Whimsical Finds, Gothic Art &amp; Creative Treasures.</span><br>
     <a href="https://lilithmoonhaven.etsy.com">Buy our digital colouring books on Etsy</a><br>
     <a href="https://lilithmoonhaven.etsy.com">https://lilithmoonhaven.etsy.com</a></p>
-    <p><a href="/spaces/v2/raven-roses-colouring-book/">Try our other free colouring book — Raven &amp; Roses Colouring Book</a><br>
+    <p><a href="https://raven-roses-cleaning.github.io/colouring-book/">Try our other free colouring book — Raven &amp; Roses Colouring Book</a><br>
     <span class="note">Another free gift — a raven among roses, from Raven &amp; Roses Cleaning Co. Free to colour, no payment, no signup.</span></p>
     <p class="note" id="more-share-status" aria-live="polite" style="margin:4px 0 0"></p>
   </section>
@@ -4728,21 +4728,45 @@ function fillAllUncoloured() {
    on the page at the tapped spot and make it the current colour.
    Only the colour layer is sampled — the black line art underneath
    is not colour the reader put there, so a spot with no colouring
-   on it yet has nothing to copy. A small patch around the tap is
-   searched and the strongest colour in it wins, so tapping a thin
-   pen line or the soft edge of a pencil stroke still finds the
-   colour instead of missing it by a pixel. Returns the hex copied,
-   or null when there was nothing to copy. */
+   on it yet has nothing to copy.
+   The patch searched around the tap is FINGERTIP-sized, measured in
+   screen pixels and converted into canvas pixels: the page is shown
+   far smaller than its natural size (on a phone roughly 3–4 canvas
+   px fit into one screen px), so the old fixed 9 x 9 canvas-px patch
+   covered barely 2 screen px — a normal fingertip tap, landing a few
+   screen px off a thin pen line (6 canvas px wide) or off the thin
+   crescent of a filled moon, missed the colour entirely and wrongly
+   reported "no colour on it yet" even on solid fills. Within the
+   patch the coloured pixel CLOSEST to the tap wins (with a small
+   bonus for solid, opaque colour over a faint fringe pixel), so the
+   colour copied is the one actually tapped, never a different colour
+   that merely happens to be nearby. Semi-transparent tools count
+   too: a pencil stroke sits around alpha 140 and a single blend
+   pass around 41, both well above the threshold below, while
+   uncoloured paper is alpha 0 and never counts. Returns the hex
+   copied, or null when there was nothing to copy. */
 function pickColourAt(cx, cy) {
   try {
-    var R = 4; // search 9 x 9 canvas px around the tap
+    var rect = colourCanvas.getBoundingClientRect();
+    var scale = rect.width > 0 ? colourCanvas.width / rect.width : 1;
+    var R = Math.round(15 * scale); // ~15 screen px each way, in canvas px
+    if (R < 12) R = 12;
+    if (R > 64) R = 64;
     var x0 = Math.max(0, cx - R), y0 = Math.max(0, cy - R);
     var x1 = Math.min(colourCanvas.width - 1, cx + R), y1 = Math.min(colourCanvas.height - 1, cy + R);
     var w = x1 - x0 + 1, h = y1 - y0 + 1;
     var data = colourCtx.getImageData(x0, y0, w, h).data;
-    var best = -1, bestA = 10;
-    for (var i = 3; i < data.length; i += 4) {
-      if (data[i] > bestA) { bestA = data[i]; best = i - 3; }
+    var ccx = cx - x0, ccy = cy - y0; // the tap point, in patch coordinates
+    var best = -1, bestScore = Infinity;
+    for (var yy = 0; yy < h; yy++) {
+      for (var xx = 0; xx < w; xx++) {
+        var i = (yy * w + xx) * 4;
+        var a = data[i + 3];
+        if (a < 24) continue; // uncoloured paper, or too faint to be a colour the reader put there
+        var dx = xx - ccx, dy = yy - ccy;
+        var score = dx * dx + dy * dy - (a / 255) * 4;
+        if (score < bestScore) { bestScore = score; best = i; }
+      }
     }
     if (best < 0) {
       setStatus("That part of the page has no colour on it yet, so there is nothing to copy. You are still on Copy colour — tap a part you have already coloured.");
@@ -6602,7 +6626,7 @@ document.addEventListener("DOMContentLoaded", function () {
       var a = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
       if (!a) return;
       var h = a.getAttribute("href") || "";
-      if (h.indexOf("raven-roses-colouring-book") !== -1) trackEvent("link_tap", { link: "raven_book" });
+      if (h.indexOf("raven-roses-cleaning.github.io/colouring-book") !== -1) trackEvent("link_tap", { link: "raven_book" });
       else if (h.indexOf("etsy.com") !== -1) trackEvent("link_tap", { link: "etsy" });
       else if (h.indexOf("facebook.com") !== -1) trackEvent("link_tap", { link: "facebook" });
       else if (h.indexOf("pinterest.com") !== -1) trackEvent("link_tap", { link: "pinterest" });
