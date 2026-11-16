@@ -374,6 +374,47 @@
   @media (prefers-color-scheme: dark){ .page-pick .page-pick-pct{color:var(--gold-bright)} }
   .page-pick.selected{background:var(--btn-on);color:var(--btn-on-ink);border-color:var(--gold-deep)}
   .page-pick.selected .page-pick-pct{color:var(--btn-on-ink)}
+  /* New page ribbon — plum-and-gold ribbon banners for a newly
+     added page, shown for 3 DAYS ONLY from the page's "added"
+     date in PAGES, then they hide themselves (see isNewActive):
+     a ribbon banner across the TOP of the book so everyone sees
+     there is a new page (see .new-banner below), a little tag
+     under its name in the picker, and a diagonal ribbon across
+     the corner of the sheet itself (see #page-new-ribbon). When
+     the next new page is added, flag THAT page isNew with its own
+     added date and the banners come back for a fresh 3 days. */
+  .page-pick-main{flex:1 1 auto;display:flex;flex-direction:column;gap:3px;min-width:0}
+  .page-pick-main .page-pick-name{flex:none}
+  .new-ribbon{
+    display:inline-flex;align-items:center;gap:4px;align-self:flex-start;
+    background:linear-gradient(180deg,#3d2566,#2a1a3e);color:#f5d76e;
+    font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;line-height:1.5;
+    padding:2px 11px;box-shadow:0 1px 3px rgba(20,8,40,.35);
+    clip-path:polygon(0 0,100% 0,calc(100% - 6px) 50%,100% 100%,0 100%,6px 50%);
+  }
+  .page-pick.selected .new-ribbon{background:linear-gradient(180deg,#f5d76e,#e3bc45);color:#2a1a3e;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+  #page-new-ribbon{
+    position:absolute;top:24px;right:-52px;z-index:6;pointer-events:none;
+    transform:rotate(45deg);white-space:nowrap;
+    background:linear-gradient(180deg,#3d2566,#2a1a3e);color:#f5d76e;
+    font-family:"EB Garamond",Georgia,serif;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+    padding:5px 52px;box-shadow:0 2px 7px rgba(20,8,40,.45);
+    border-top:1px solid rgba(245,215,110,.55);border-bottom:1px solid rgba(245,215,110,.55);
+  }
+  #page-new-ribbon[hidden]{display:none}
+  /* Top-of-book new page banner — one ribbon banner, centred
+     under the title band, tappable: it takes the reader straight
+     to the new page. Hidden unless a page is inside its 3 days. */
+  .new-banner-wrap{text-align:center;margin:10px 4px 0}
+  .new-banner-wrap[hidden]{display:none}
+  .new-banner{
+    display:inline-block;max-width:100%;border:none;border-radius:0;cursor:pointer;
+    background:linear-gradient(180deg,#3d2566,#2a1a3e);color:#f5d76e;
+    font-size:.95rem;font-weight:700;letter-spacing:.03em;line-height:1.4;
+    padding:9px 32px;min-height:44px;box-shadow:0 2px 8px rgba(20,8,40,.35);
+    clip-path:polygon(0 0,100% 0,calc(100% - 10px) 50%,100% 100%,0 100%,10px 50%);
+  }
+  .new-banner:hover{color:#ffe9a8;border-color:transparent}
   .picker-intro{margin-top:2px}
   /* Quiet music control right above the colouring page */
   .music-mini{
@@ -1232,6 +1273,25 @@
   .end-links{text-align:center}
   .end-links p{margin:8px 0}
   .end-links a{color:var(--gold-deep);font-weight:600;overflow-wrap:anywhere}
+  /* Don't count my visits — owner switch in More. A real switch
+     button (role="switch"), remembered on this phone only. */
+  .owner-count{border-top:1px solid var(--panel-line);padding-top:12px;margin-top:14px}
+  .owner-count-title{font-weight:700;font-size:1rem;margin:0 0 2px !important;color:var(--ink)}
+  .owner-count-note{margin:2px auto 0 !important;max-width:32rem}
+  .owner-count-row{display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 2px;flex-wrap:wrap}
+  button.owner-switch{
+    position:relative;flex:none;width:60px;height:34px;min-height:34px;padding:0;
+    border-radius:999px;background:var(--btn);border:1px solid var(--btn-line);
+  }
+  button.owner-switch .owner-switch-knob{
+    position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;
+    background:var(--ink-soft);transition:left .18s ease,background .18s ease;
+  }
+  button.owner-switch.is-on{background:var(--btn-on);border-color:var(--gold-deep)}
+  button.owner-switch.is-on .owner-switch-knob{left:29px;background:var(--gold-bright)}
+  button.owner-switch:focus-visible{outline:3px solid var(--gold-deep);outline-offset:2px}
+  @media (prefers-reduced-motion: reduce){ button.owner-switch .owner-switch-knob{transition:none} }
+  .owner-count-state{font-weight:600;font-size:.95rem;color:var(--ink);text-align:left}
   .cleaning-ad{border-top:1px solid var(--panel-line);padding-top:12px;margin-top:14px}
   .cleaning-ad .ad-name{font-family:"Cinzel Decorative","EB Garamond",Georgia,serif;font-weight:400;font-size:1.25rem;color:var(--ink)}
   .coming-soon{color:var(--ink-soft);font-style:italic}
@@ -1336,6 +1396,10 @@
     <p>A Free Colouring Book — a gift from Lilith Moon Haven. Whimsical Finds, Gothic Art &amp; Creative Treasures. No payment, no signup — just colour.</p>
   </div>
 
+  <div class="new-banner-wrap" id="new-banner-wrap" hidden>
+    <button type="button" class="new-banner" id="new-page-banner"><span id="new-page-banner-text">✦ New page added ✦</span></button>
+  </div>
+
   <p class="top-lilith-link"><a href="https://raven-roses-cleaning.github.io/colouring-book/">Try our other free colouring book — Raven &amp; Roses →</a></p>
 
   <p class="top-tip">Tip: Add to Home Screen to keep this book on your phone like an app.</p>
@@ -1415,6 +1479,7 @@
           <canvas id="colour-canvas" tabindex="0" aria-label="Colouring area — tap to fill, or draw with pen, pencil, or brush. Double-tap to enlarge the page, double-tap again to go back to normal size."></canvas>
           <div id="magnifier" hidden aria-hidden="true"><canvas id="magnifier-canvas" width="660" height="660"></canvas></div>
           <div id="loading-note">Loading your colouring page…</div>
+          <div id="page-new-ribbon" hidden aria-hidden="true">✦ New page added ✦</div>
         </div>
       </div>
     </div>
@@ -1679,7 +1744,7 @@
       <div class="badge" data-badge="all-pages">
         <div class="badge-medal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5 C7.5 3.4 10 3.4 12 5 V19.5 C10 18 7.5 18 5 19 Z"/><path d="M19 4.5 C16.5 3.4 14 3.4 12 5 V19.5 C14 18 16.5 18 19 19 Z"/></svg></div>
         <h3>Bookworm — All Pages</h3>
-        <p>Colour something on all 9 pages.</p>
+        <p>Colour something on all 10 pages.</p>
         <p class="badge-state">Not yet</p>
       </div>
     </div>
@@ -1806,6 +1871,14 @@
     <p><a href="https://raven-roses-cleaning.github.io/colouring-book/">Try our other free colouring book — Raven &amp; Roses Colouring Book</a><br>
     <span class="note">Another free gift — a raven among roses, from Raven &amp; Roses Cleaning Co. Free to colour, no payment, no signup.</span></p>
     <p class="note" id="more-share-status" aria-live="polite" style="margin:4px 0 0"></p>
+    <div class="owner-count">
+      <p class="owner-count-title">Don&rsquo;t count my visits</p>
+      <p class="note owner-count-note">For the book&rsquo;s owner: turn this on on your own phone and visits from this phone won&rsquo;t be counted in the visit numbers, so your own look-ins don&rsquo;t skew the counts. It only affects this phone &mdash; everyone else&rsquo;s visits still count as normal.</p>
+      <div class="owner-count-row">
+        <button id="dont-count-switch" class="owner-switch" type="button" role="switch" aria-checked="false" aria-label="Don’t count my visits"><span class="owner-switch-knob" aria-hidden="true"></span></button>
+        <span id="dont-count-state" class="owner-count-state" aria-live="polite">Off &mdash; visits from this phone are counted</span>
+      </div>
+    </div>
   </section>
 
   <section class="panel paper-panel" aria-label="Choose the app background">
@@ -1876,6 +1949,17 @@
 
    Adding a page later: copy the new image into assets/ and add ONE
    entry to the PAGES list below — { id, title, file, level }.
+   APPROVAL GATE — read before adding ANY page (Krystal, 2026-11-15,
+   after two unapproved child-style pages had to be pulled): this is
+   an ADULT colouring book and Lilith is an adult woman. A new page
+   goes in ONLY when (1) Krystal has seen the finished page and
+   approved that exact page, and (2) the art is adult line art in
+   the book's style — never Lilith or anyone drawn as a child, never
+   a cute / chibi children's style, however "easy" the level, and
+   never solid-black filled shapes (like a filled-in cat) that
+   leave nothing to colour. An easy page means big open shapes in
+   the same adult art, not a children's page. If in doubt, do not
+   add it — show Krystal first.
    "level" is the page's difficulty, 1 to 5: "level1" (Very easy),
    "level2" (Easy), "level3" (Moderate), "level4" (Intricate), or
    "level5" (Super intricate). The picker groups pages into those
@@ -1913,9 +1997,65 @@ var PAGES = [
   { "id": "page-05", "title": "Page 5 — Lilith at the vanity",          "file": "media-generation-lilith-colouring-page-05-lilit-0-04f6f77d-37d5-41f8-ad37-943fdc55905e.webp", "level": "level5" },
   { "id": "page-06", "title": "Page 6 — Lilith under the flower arch",  "file": "media-generation-lilith-colouring-page-06-lilit-0-70cb68d2-0530-4e5f-8ef3-7e3cf4d091f8.webp", "level": "level3" },
   { "id": "page-07", "title": "Page 7 — Lilith at the star window",    "file": "media-generation-lilith-colouring-page-07-lilit-0-1bc9e865-97b3-4b8b-b78b-4ac0389e384a.webp", "level": "level3" },
-  { "id": "page-08", "title": "Page 8 — Lilith under the big moon",    "file": "media-generation-lilith-level1-very-easy-moon-g-0-d934d7c0-c6f8-447d-b595-b89daea7fb16.webp", "level": "level1" },
-  { "id": "page-09", "title": "Page 9 — Lilith with her lantern",      "file": "media-generation-lilith-level2-easy-night-bench-0-405a5928-ccf0-4844-a423-31ccc4b639e8.webp", "level": "level2" }
+  { "id": "page-08", "title": "Page 8 — Lilith with her cat",           "file": "lilith-page-10-with-her-cat.webp", "level": "level2" },
+  { "id": "page-09", "title": "Page 9 — Lilith among the moonflowers",  "file": "lilith-page-11-among-the-moonflowers.webp", "level": "level1", "isNew": true, "added": "2026-11-16" }
 ];
+
+/* ---- Removed pages — NEVER bring these back ----
+   On 2026-11-15 Krystal ordered two pages pulled from this book:
+   "Lilith under the big moon" and "Lilith with her lantern". Both
+   drew Lilith as a little girl in a cute, childlike style, with a
+   solid black cat that could not be coloured at all — children's
+   colouring pages in an adult book, added on 2026-11-05 without
+   her ever seeing or approving them. The two proper adult pages
+   that were Pages 10 and 11 took their place as Pages 8 and 9
+   (see the one-time renumbering migration by the store helpers,
+   which carries readers' saved colouring, stats, favourites and
+   finished marks over to the new numbers and discards the pulled
+   pages' own). The pulled pages are named here as a blocklist:
+   if an entry pointing at either file ever finds its way back
+   into PAGES (an old copy of this file, a merge, a paste), it is
+   stripped out below before the book is built, so those pages can
+   never appear in the book again. Their picture files stay in
+   assets/ ONLY so a Gallery picture a reader already saved from
+   one of them keeps its line art — they are in no page list, and
+   the service worker no longer caches them with the book. */
+var REMOVED_PAGE_FILES = [
+  "media-generation-lilith-level1-very-easy-moon-g-0-d934d7c0-c6f8-447d-b595-b89daea7fb16.webp",
+  "media-generation-lilith-level2-easy-night-bench-0-405a5928-ccf0-4844-a423-31ccc4b639e8.webp"
+];
+PAGES = PAGES.filter(function (pg) { return REMOVED_PAGE_FILES.indexOf(pg.file) === -1; });
+
+/* ---- New page banners — 3 days only ----
+   A page flagged "isNew" with an "added" date (YYYY-MM-DD) wears
+   the ribbon banners — the top-of-book banner, its picker tag and
+   the ribbon on the sheet — for 3 days from the morning it was
+   added, then they all go away on their own; nothing to switch
+   off. To feature the next new page, add it with isNew + its own
+   added date (and clear the old page's flag): the banners come
+   back for a fresh 3 days from that page's date. */
+var NEW_PAGE_DAYS = 3;
+function isNewActive(page) {
+  if (!page || !page.isNew) return false;
+  if (!page.added) return true;
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(page.added);
+  if (!m) return true;
+  var start = new Date(+m[1], +m[2] - 1, +m[3]).getTime(); // local midnight on the day it was added
+  return Date.now() < start + NEW_PAGE_DAYS * 86400000;
+}
+function latestNewPage() {
+  var found = null;
+  PAGES.forEach(function (pg, idx) { if (isNewActive(pg)) found = { page: pg, index: idx }; });
+  return found;
+}
+function renderNewBanner() {
+  var wrap = $("new-banner-wrap"), text = $("new-page-banner-text");
+  if (!wrap || !text) return;
+  var t = latestNewPage();
+  if (!t) { wrap.hidden = true; return; }
+  text.textContent = "✦ New page added · " + t.page.title + " — tap to colour it ✦";
+  wrap.hidden = false;
+}
 
 var PALETTES = {
   "Moonlight": ["#2a1a3e", "#8e44ad", "#b79ced", "#c9a227", "#f5d76e", "#e8e3f5", "#ffffff"],
@@ -1939,8 +2079,8 @@ var SUGGESTED = {
   "page-05": { note: "Vanity pinks and plum with gold for a glamorous night-time page.", colours: ["#e84393", "#b5658f", "#c9a227", "#5b4a8a", "#f2d7da", "#2c3e50"] },
   "page-06": { note: "Flower-arch roses and leaf greens under the moon.", colours: ["#e07a9b", "#c1557a", "#7fb069", "#f2e8cf", "#8e44ad", "#e9c46a"] },
   "page-07": { note: "Star-window night blues with moon gold.", colours: ["#2f4858", "#486e8a", "#c9a227", "#f5d76e", "#8e9aaf", "#e8e3f5"] },
-  "page-08": { note: "Big, easy shapes — moon gold, violet and rose for this very easy page.", colours: ["#f5d76e", "#c9a227", "#8e44ad", "#e07a9b", "#7fb069", "#486e8a"] },
-  "page-09": { note: "Lantern glow — warm golds against night blue and violet.", colours: ["#486e8a", "#f5d76e", "#e9c46a", "#8e44ad", "#7fb069", "#e07a5f"] }
+  "page-08": { note: "Crescent-moon gold and lavender for Lilith with her cat, mushrooms and night sky.", colours: ["#f5d76e", "#c9a227", "#8e44ad", "#b79ced", "#7fb069", "#e07a9b"] },
+  "page-09": { note: "Moonflower whites, lavender and leaf green for Lilith among the moonflowers under the crescent moon.", colours: ["#e8e3f5", "#b79ced", "#8e44ad", "#7fb069", "#588157", "#f5d76e"] }
 };
 var MUSIC_TRACKS = [
   { id: "soft-piano", name: "Soft Piano — a soft, gentle little song, slow and quiet", file: "soft-piano.mp3", local: true },
@@ -2034,7 +2174,47 @@ var baseCtx = baseCanvas.getContext("2d");
 var ANALYTICS_BOOK = "lilith"; // this book's tab in the Sheet
 var ANALYTICS_SHEET_URL = "https://script.google.com/macros/s/AKfycbw9thcsuocQSPdmNltDsgS87CDlQknpD2mI20m-N80H5dqsoWIOOlJkp4T6Tyxl7fi-/exec"; // Live Apps Script web app — anonymous events are queued on the phone and sent to the "lilith" tab of the Sheet (batched JSON POST — fetch / sendBeacon — on flush / hide / close; see the send notes above).
 var appReady = false; // true once the book has opened — the opening calls below are not reader usage
+/* ---- Don't count my visits (owner switch, in More) ----
+   When this is ON on a phone, trackEvent does nothing at all on
+   that phone: no local tally, no queue for the Sheet, nothing
+   forwarded — so the owner's own look-ins never reach the visit
+   counts. It is per-phone only (kept in this phone's storage,
+   like the app background), and it never affects anyone else.
+   Feedback is NOT analytics and is never blocked by this: the
+   feedback send has its own pipe and still works when this is on.
+   The check reads localStorage directly (not storeGet) so it is
+   safe wherever trackEvent is called from. */
+function dontCountMeOn() {
+  try { return window.localStorage.getItem("lilithColouringV1:dontCountMe") === "1"; } catch (e) { return false; }
+}
+function syncDontCountSwitch() {
+  var btn = document.getElementById("dont-count-switch");
+  if (!btn) return;
+  var on = dontCountMeOn();
+  btn.setAttribute("aria-checked", String(on));
+  btn.classList.toggle("is-on", on);
+  var st = document.getElementById("dont-count-state");
+  if (st) st.textContent = on ? "On — your visits on this phone aren’t counted" : "Off — visits from this phone are counted";
+}
+function setDontCountMe(on) {
+  try {
+    if (on) window.localStorage.setItem("lilithColouringV1:dontCountMe", "1");
+    else window.localStorage.removeItem("lilithColouringV1:dontCountMe");
+  } catch (e) {}
+  if (on) {
+    // Drop anything still queued on this phone, so visits from
+    // just before the switch was turned on are not sent after it.
+    try {
+      sheetQueue = [];
+      persistSheetQueue();
+      if (sheetFlushTimer) { clearTimeout(sheetFlushTimer); sheetFlushTimer = null; }
+      if (sheetEarlyFlushTimer) { clearTimeout(sheetEarlyFlushTimer); sheetEarlyFlushTimer = null; }
+    } catch (e) {}
+  }
+  syncDontCountSwitch();
+}
 function trackEvent(name, props) {
+  if (dontCountMeOn()) return; // owner's own phone, switch on in More — count nothing
   try {
     var tally = {};
     var raw = storeGet("analytics");
@@ -2092,6 +2272,7 @@ function persistSheetQueue() {
   try { storeSet("analyticsQueue", JSON.stringify(sheetQueue || [])); } catch (e) {}
 }
 function queueSheetEvent(name, props) {
+  if (dontCountMeOn()) return; // owner switch on — queue nothing
   if (!ANALYTICS_SHEET_URL) return; // safety guard — if the URL is ever cleared, fall back to phone tally only
   try {
     var q = loadSheetQueue();
@@ -2148,6 +2329,12 @@ function sheetEventFor(ev) {
 }
 function sendSheetQueue(useBeacon) {
   if (!ANALYTICS_SHEET_URL) return;
+  if (dontCountMeOn()) {
+    // Owner switch on — nothing leaves this phone; clear any
+    // leftover queue instead of sending it.
+    try { sheetQueue = []; persistSheetQueue(); } catch (e) {}
+    return;
+  }
   var q = loadSheetQueue();
   if (!q.length) return;
   if (sheetFlushTimer) { clearTimeout(sheetFlushTimer); sheetFlushTimer = null; }
@@ -2246,8 +2433,98 @@ function storeSet(key, value) {
 function storeRemove(key) {
   try { window.localStorage.removeItem(STORE_PREFIX + key); } catch (e) {}
 }
+/* ---- One-time page renumbering — 2026-11-15 ----
+   The two child-style pages pulled on Krystal's order (see
+   REMOVED_PAGE_FILES above) were Pages 8 and 9; the proper adult
+   pages that replaced them were Pages 10 ("Lilith with her cat")
+   and 11 ("Lilith among the moonflowers") and are now Pages 8
+   and 9. Saved colouring, per-page stats, favourite pages,
+   finished marks and the remembered last page are all keyed by
+   page id or number on the reader's phone, so on the FIRST load
+   of the fixed book this moves the two proper pages' records
+   onto their new numbers and discards the pulled pages' own
+   records (their colouring must not land on the new pages that
+   now wear numbers 8 and 9). It runs once, behind its own flag;
+   without the flag the discard step would eat the new pages'
+   fresh saves on every load. Gallery versions are NOT touched:
+   each carries its own picture file and title, so a version a
+   reader saved from any page — pulled or renumbered — still
+   hangs in their Gallery exactly as they saved it. */
+(function migrateRenumberedPages() {
+  try {
+    if (storeGet("pageRenumber2026-11") === "done") return;
+    var oldCat = storeGet("page:page-10");
+    var oldMoon = storeGet("page:page-11");
+    storeRemove("page:page-08");
+    storeRemove("page:page-09");
+    if (oldCat) storeSet("page:page-08", oldCat);
+    if (oldMoon) storeSet("page:page-09", oldMoon);
+    storeRemove("page:page-10");
+    storeRemove("page:page-11");
+    try {
+      var rawStats = storeGet("stats");
+      if (rawStats) {
+        var st = JSON.parse(rawStats);
+        if (st && st.pages) {
+          var catStats = st.pages["page-10"], moonStats = st.pages["page-11"];
+          delete st.pages["page-08"];
+          delete st.pages["page-09"];
+          if (catStats) st.pages["page-08"] = catStats;
+          if (moonStats) st.pages["page-09"] = moonStats;
+          delete st.pages["page-10"];
+          delete st.pages["page-11"];
+          storeSet("stats", JSON.stringify(st));
+        }
+      }
+    } catch (e) {}
+    try {
+      var rawFav = storeGet("favouritePages");
+      if (rawFav) {
+        var fa = JSON.parse(rawFav);
+        if (fa && fa.length) {
+          var mapped = [];
+          fa.forEach(function (id) {
+            var nid = null;
+            if (id === "page-10") nid = "page-08";
+            else if (id === "page-11") nid = "page-09";
+            else if (id !== "page-08" && id !== "page-09") nid = id;
+            if (nid && mapped.indexOf(nid) === -1) mapped.push(nid);
+          });
+          storeSet("favouritePages", JSON.stringify(mapped));
+        }
+      }
+    } catch (e) {}
+    try {
+      var rawAct = storeGet("activity");
+      if (rawAct) {
+        var act = JSON.parse(rawAct);
+        if (act && act.finished) {
+          var fin = {};
+          Object.keys(act.finished).forEach(function (id) {
+            if (!act.finished[id]) return;
+            if (id === "page-10") fin["page-08"] = true;
+            else if (id === "page-11") fin["page-09"] = true;
+            else if (id !== "page-08" && id !== "page-09") fin[id] = true;
+          });
+          act.finished = fin;
+          storeSet("activity", JSON.stringify(act));
+        }
+      }
+    } catch (e) {}
+    try {
+      var rawLast = storeGet("lastPage");
+      if (rawLast !== null) {
+        var li = parseInt(rawLast, 10);
+        if (li === 10) storeSet("lastPage", "8");
+        else if (li === 11) storeSet("lastPage", "9");
+        else if (li === 8 || li === 9) storeSet("lastPage", "0");
+      }
+    } catch (e) {}
+    storeSet("pageRenumber2026-11", "done");
+  } catch (e) {}
+})();
 function colourPages() {
-  // The 11 colouring pages (everything except the cover) — used by the
+  // The colouring pages (everything except the cover) — used by the
   // Bookworm / All Pages badge.
   return PAGES.filter(function (p) { return p.id !== "cover"; });
 }
@@ -4412,16 +4689,25 @@ function makePagePickRow(pg, idx) {
   var b = document.createElement("button");
   b.type = "button";
   b.className = "page-pick" + (idx === currentIndex ? " selected" : "");
-  b.setAttribute("aria-label", "Colour " + (pg.id === "cover" ? "Cover" : pg.title));
+  b.setAttribute("aria-label", "Colour " + (pg.id === "cover" ? "Cover" : pg.title) + (isNewActive(pg) ? " — new page added" : ""));
   var img = document.createElement("img");
   img.src = "assets/" + pg.file;
   img.alt = "";
   img.loading = "lazy";
   b.appendChild(img);
+  var main = document.createElement("span");
+  main.className = "page-pick-main";
   var name = document.createElement("span");
   name.className = "page-pick-name";
   name.textContent = pg.id === "cover" ? "Cover" : pg.title;
-  b.appendChild(name);
+  main.appendChild(name);
+  if (isNewActive(pg)) {
+    var ribbon = document.createElement("span");
+    ribbon.className = "new-ribbon";
+    ribbon.textContent = "✦ New page added";
+    main.appendChild(ribbon);
+  }
+  b.appendChild(main);
   var st = pageStats[pg.id];
   if (st && st.touched) {
     var pct = document.createElement("span");
@@ -4517,11 +4803,13 @@ function loadPage(index) {
   // and it has no "Page N of …" line. The colouring pages are the
   // only numbered pages, Page 1 to Page 9 (PAGES[0] is the cover,
   // so a colouring page's number is its index in PAGES), counted
-  // out of the 11 colouring pages. That way there is only one Page 1.
+  // out of the 9 colouring pages. That way there is only one Page 1.
   $("page-title").textContent = (page.id === "cover") ? "Cover" : page.title;
   $("page-count").textContent = (page.id === "cover")
-    ? "Cover · 11 colouring pages in this book"
+    ? "Cover · " + (PAGES.length - 1) + " colouring pages in this book"
     : "Page " + currentIndex + " of " + (PAGES.length - 1);
+  var newRibbon = $("page-new-ribbon");
+  if (newRibbon) newRibbon.hidden = !isNewActive(page);
   var diffEl = $("page-difficulty");
   if (diffEl) {
     var lvlTxt = levelLabel(page);
@@ -5070,6 +5358,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     renderLevelPages();
   })();
+  // Top-of-book "New page added" ribbon banner — shows only while
+  // a page is inside its 3 days (see isNewActive); tapping it goes
+  // straight to that page.
+  renderNewBanner();
+  var newBannerBtn = $("new-page-banner");
+  if (newBannerBtn) newBannerBtn.addEventListener("click", function () {
+    var t = latestNewPage();
+    if (!t) return;
+    trackEvent("new_banner_tap", { page: t.page.id });
+    loadPage(t.index);
+    var sa = $("sheet-area");
+    if (sa) { try { sa.scrollIntoView({ block: "start" }); } catch (e) { window.scrollTo(0, 0); } }
+  });
   $("prev-btn").addEventListener("click", function () { if (currentIndex > 0) loadPage(currentIndex - 1); });
   $("next-btn").addEventListener("click", function () { if (currentIndex < PAGES.length - 1) loadPage(currentIndex + 1); });
 
@@ -6122,6 +6423,11 @@ document.addEventListener("DOMContentLoaded", function () {
   for (var pb = 0; pb < paperBtns.length; pb++) {
     paperBtns[pb].addEventListener("click", function () { setAppBackground(this.getAttribute("data-paper")); });
   }
+  // Don't count my visits — owner switch in More, remembered on
+  // this phone only (see dontCountMeOn / setDontCountMe above).
+  syncDontCountSwitch();
+  var dontCountSwitch = $("dont-count-switch");
+  if (dontCountSwitch) dontCountSwitch.addEventListener("click", function () { setDontCountMe(!dontCountMeOn()); });
   // The frame / plaque tiles in the frames section need no listener
   // here: tapping one picks it (and a plaque shows the optional name
   // line) — see buildFramesPreview. That section's Save button
@@ -6581,7 +6887,7 @@ document.addEventListener("DOMContentLoaded", function () {
   try {
     var todayKey = dayKey(new Date());
     var lastVisitDay = storeGet("lastVisitDay");
-    if (lastVisitDay !== todayKey) {
+    if (!dontCountMeOn() && lastVisitDay !== todayKey) {
       var visitDayCount = (parseInt(storeGet("visitDays") || "0", 10) || 0) + 1;
       storeSet("visitDays", String(visitDayCount));
       if (lastVisitDay) {
