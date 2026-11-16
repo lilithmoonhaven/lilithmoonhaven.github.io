@@ -379,8 +379,8 @@
      date in PAGES, then they hide themselves (see isNewActive):
      a ribbon banner across the TOP of the book so everyone sees
      there is a new page (see .new-banner below), a little tag
-     under its name in the picker, and a diagonal ribbon across
-     the corner of the sheet itself (see #page-new-ribbon). When
+     under its name in the picker, and a banner ABOVE the sheet
+     itself — never on the picture (see #page-new-ribbon). When
      the next new page is added, flag THAT page isNew with its own
      added date and the banners come back for a fresh 3 days. */
   .page-pick-main{flex:1 1 auto;display:flex;flex-direction:column;gap:3px;min-width:0}
@@ -393,15 +393,20 @@
     clip-path:polygon(0 0,100% 0,calc(100% - 6px) 50%,100% 100%,0 100%,6px 50%);
   }
   .page-pick.selected .new-ribbon{background:linear-gradient(180deg,#f5d76e,#e3bc45);color:#2a1a3e;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+  /* New page banner for the current sheet — sits ABOVE the
+     picture, between the double-tap hint and the sheet, so it
+     never covers or ruins any of the artwork. Same plum-and-gold
+     ribbon styling as before, laid flat as a banner strip with
+     ribbon-cut ends instead of diagonally across the corner. */
   #page-new-ribbon{
-    position:absolute;top:24px;right:-52px;z-index:6;pointer-events:none;
-    transform:rotate(45deg);white-space:nowrap;
+    text-align:center;margin:0 auto 8px;max-width:520px;pointer-events:none;
     background:linear-gradient(180deg,#3d2566,#2a1a3e);color:#f5d76e;
-    font-family:"EB Garamond",Georgia,serif;font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
-    padding:5px 52px;box-shadow:0 2px 7px rgba(20,8,40,.45);
-    border-top:1px solid rgba(245,215,110,.55);border-bottom:1px solid rgba(245,215,110,.55);
+    font-family:"EB Garamond",Georgia,serif;font-size:.78rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;line-height:1.4;
+    padding:7px 32px;box-shadow:0 2px 7px rgba(20,8,40,.35);
+    clip-path:polygon(0 0,100% 0,calc(100% - 10px) 50%,100% 100%,0 100%,10px 50%);
   }
   #page-new-ribbon[hidden]{display:none}
+  #sheet-area.enlarged #page-new-ribbon{flex:none;margin:0 auto 6px}
   /* Top-of-book new page banner — one ribbon banner, centred
      under the title band, tappable: it takes the reader straight
      to the new page. Hidden unless a page is inside its 3 days. */
@@ -1472,6 +1477,7 @@
       <button id="next-btn" type="button">Next page →</button>
     </div>
     <p class="dbltap-hint">Double-tap the page to enlarge it — double-tap again to go back.</p>
+    <div id="page-new-ribbon" hidden aria-hidden="true">✦ New page added ✦</div>
     <div id="enlarge-scroll">
       <div class="paper" id="paper-el">
         <div id="canvas-wrap">
@@ -1479,7 +1485,6 @@
           <canvas id="colour-canvas" tabindex="0" aria-label="Colouring area — tap to fill, or draw with pen, pencil, or brush. Double-tap to enlarge the page, double-tap again to go back to normal size."></canvas>
           <div id="magnifier" hidden aria-hidden="true"><canvas id="magnifier-canvas" width="660" height="660"></canvas></div>
           <div id="loading-note">Loading your colouring page…</div>
-          <div id="page-new-ribbon" hidden aria-hidden="true">✦ New page added ✦</div>
         </div>
       </div>
     </div>
