@@ -17,7 +17,8 @@ var FILES = [
   './media-generation-lilith-colouring-page-06-lilit-0-70cb68d2-0530-4e5f-8ef3-7e3cf4d091f8.webp',
   './media-generation-lilith-colouring-page-07-lilit-0-1bc9e865-97b3-4b8b-b78b-4ac0389e384a.webp',
   './lilith-page-10-with-her-cat.webp',
-  './lilith-page-11-among-the-moonflowers.webp'
+  './lilith-page-11-among-the-moonflowers.webp',
+  './lilith-page-12-beneath-the-crescent-moon.webp'
 ];
 self.addEventListener('install', function (e) {
   e.waitUntil(
