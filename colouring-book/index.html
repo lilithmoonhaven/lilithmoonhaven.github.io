@@ -2059,7 +2059,7 @@ function renderNewBanner() {
   if (!wrap || !text) return;
   var t = latestNewPage();
   if (!t) { wrap.hidden = true; return; }
-  text.textContent = "✦ New page added · " + t.page.title + " — tap to colour it ✦";
+  text.textContent = "✦ New page added · " + t.page.title + " · " + levelLabel(t.page) + " — tap to colour it ✦";
   wrap.hidden = false;
 }
 
