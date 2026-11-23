@@ -1991,7 +1991,7 @@ var LEVELS = {
   "level5": { "label": "Level 5 — Super intricate", "short": "Level 5 · Super intricate", "dots": "●●●●●", "blurb": "Lots of tiny detail — for a long, absorbing colour." }
 };
 var LEVEL_ORDER = ["level1", "level2", "level3", "level4", "level5"];
-function levelLabel(page) { return page && page.level && LEVELS[page.level] ? LEVELS[page.level].label : ""; }
+function levelLabel(page) { return page && page.levelLabel ? page.levelLabel : (page && page.level && LEVELS[page.level] ? LEVELS[page.level].label : ""); }
 
 var PAGES = [
   { "id": "cover",   "title": "Cover — Lilith Moon Haven",              "file": "media-generation-lilith-colouring-title-page-0-49ad84c6-b747-4b09-b07d-92e7a96838d7.webp", "level": "level4" },
@@ -2004,7 +2004,7 @@ var PAGES = [
   { "id": "page-07", "title": "Page 7 — Lilith at the star window",    "file": "media-generation-lilith-colouring-page-07-lilit-0-1bc9e865-97b3-4b8b-b78b-4ac0389e384a.webp", "level": "level3" },
   { "id": "page-08", "title": "Page 8 — Lilith with her cat",           "file": "lilith-page-10-with-her-cat.webp", "level": "level2" },
   { "id": "page-09", "title": "Page 9 — Lilith among the moonflowers",  "file": "lilith-page-11-among-the-moonflowers.webp", "level": "level1" },
-  { "id": "page-12", "title": "Page 12 — Lilith beneath the crescent moon", "file": "lilith-page-12-beneath-the-crescent-moon.webp", "level": "level2", "isNew": true, "added": "2026-11-23" }
+  { "id": "page-12", "title": "Page 12 — Lilith beneath the crescent moon", "file": "lilith-page-12-beneath-the-crescent-moon.webp", "level": "level2", "levelLabel": "Level 2 — Medium", "isNew": true, "added": "2026-11-23" }
 ];
 
 /* ---- Removed pages — NEVER bring these back ----
