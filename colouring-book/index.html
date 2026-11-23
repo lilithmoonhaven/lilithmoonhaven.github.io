@@ -1418,7 +1418,7 @@
     </div>
   </section>
 
-  <section class="panel picker-compact" aria-label="Choose a page">
+  <section class="panel picker-compact" id="page-picker" aria-label="Choose a page">
     <div class="head-row">
       <h2>Choose a page</h2>
       <button class="info-btn" type="button" data-help-target="levels-help" aria-expanded="false" aria-controls="levels-help" aria-label="How the levels work">ⓘ</button>
@@ -2003,7 +2003,8 @@ var PAGES = [
   { "id": "page-06", "title": "Page 6 — Lilith under the flower arch",  "file": "media-generation-lilith-colouring-page-06-lilit-0-70cb68d2-0530-4e5f-8ef3-7e3cf4d091f8.webp", "level": "level3" },
   { "id": "page-07", "title": "Page 7 — Lilith at the star window",    "file": "media-generation-lilith-colouring-page-07-lilit-0-1bc9e865-97b3-4b8b-b78b-4ac0389e384a.webp", "level": "level3" },
   { "id": "page-08", "title": "Page 8 — Lilith with her cat",           "file": "lilith-page-10-with-her-cat.webp", "level": "level2" },
-  { "id": "page-09", "title": "Page 9 — Lilith among the moonflowers",  "file": "lilith-page-11-among-the-moonflowers.webp", "level": "level1", "isNew": true, "added": "2026-11-16" }
+  { "id": "page-09", "title": "Page 9 — Lilith among the moonflowers",  "file": "lilith-page-11-among-the-moonflowers.webp", "level": "level1" },
+  { "id": "page-12", "title": "Page 12 — Lilith beneath the crescent moon", "file": "lilith-page-12-beneath-the-crescent-moon.webp", "level": "level2", "isNew": true, "added": "2026-11-23" }
 ];
 
 /* ---- Removed pages — NEVER bring these back ----
@@ -2085,7 +2086,8 @@ var SUGGESTED = {
   "page-06": { note: "Flower-arch roses and leaf greens under the moon.", colours: ["#e07a9b", "#c1557a", "#7fb069", "#f2e8cf", "#8e44ad", "#e9c46a"] },
   "page-07": { note: "Star-window night blues with moon gold.", colours: ["#2f4858", "#486e8a", "#c9a227", "#f5d76e", "#8e9aaf", "#e8e3f5"] },
   "page-08": { note: "Crescent-moon gold and lavender for Lilith with her cat, mushrooms and night sky.", colours: ["#f5d76e", "#c9a227", "#8e44ad", "#b79ced", "#7fb069", "#e07a9b"] },
-  "page-09": { note: "Moonflower whites, lavender and leaf green for Lilith among the moonflowers under the crescent moon.", colours: ["#e8e3f5", "#b79ced", "#8e44ad", "#7fb069", "#588157", "#f5d76e"] }
+  "page-09": { note: "Moonflower whites, lavender and leaf green for Lilith among the moonflowers under the crescent moon.", colours: ["#e8e3f5", "#b79ced", "#8e44ad", "#7fb069", "#588157", "#f5d76e"] },
+  "page-12": { note: "Crescent-moon gold, lavender and night-garden greens for Lilith beneath the crescent moon, in her flowing gown among the ferns and moonflowers.", colours: ["#f5d76e", "#c9a227", "#b79ced", "#8e44ad", "#7fb069", "#2f4858"] }
 };
 var MUSIC_TRACKS = [
   { id: "soft-piano", name: "Soft Piano — a soft, gentle little song, slow and quiet", file: "soft-piano.mp3", local: true },
@@ -2396,6 +2398,97 @@ var baseData = null;
 var undoStack = [];
 var redoStack = [];
 var currentIndex = 0;
+
+/* ---- Phone / browser Back button — one step INSIDE the book ----
+   Without this, the book is one single history entry: a reader who
+   tapped a page in the picker (the page gallery) and is colouring
+   it presses their phone's Back button — or the ‹ arrow in the
+   app frame — and is thrown out of the whole book, losing their
+   place. So each step inside the book gets its own history entry,
+   and Back unwinds exactly one step at a time:
+     picker (page gallery) → colouring page → enlarged view
+     picker / colouring    → a saved picture's large view (Gallery)
+   Back from a colouring page returns to the page picker and
+   scrolls it into view; Back from the enlarged view returns to
+   the normal colouring view; Back from a saved picture returns
+   to the Gallery wall. Only Back from the picker itself leaves
+   the book, as it should. The in-page close buttons for the
+   enlarged view and the large picture go through history too
+   (lilithNavBack), so the history stack and what is on screen
+   can never disagree. Nothing here touches the reader's
+   colouring: going back never reloads or clears a page — the
+   colouring canvas and its saved progress stay exactly as they
+   were, Back only changes which part of the book is showing. */
+var lilithNavView = "picker";   // the history step currently on screen
+var lilithNavUnder = "picker";  // the step underneath an overlay step (enlarged / lightbox)
+var lilithNavHandlers = { closeEnlarged: null, openEnlarged: null };
+function lilithNavStateView(state) {
+  return (state && typeof state.lilithNav === "string") ? state.lilithNav : "picker";
+}
+function lilithNavScrollTo(el) {
+  if (!el) return;
+  try { el.scrollIntoView({ block: "start" }); } catch (e) {}
+}
+function lilithNavInit() {
+  try { history.replaceState({ lilithNav: "picker" }, ""); } catch (e) {}
+  lilithNavView = "picker";
+  lilithNavUnder = "picker";
+}
+function lilithNavEnter(view, extra) {
+  var state = { lilithNav: view };
+  if (extra) { for (var k in extra) { if (Object.prototype.hasOwnProperty.call(extra, k)) state[k] = extra[k]; } }
+  try {
+    if (lilithNavView === view) {
+      history.replaceState(state, "");
+    } else {
+      lilithNavUnder = lilithNavView;
+      history.pushState(state, "");
+    }
+  } catch (e) {}
+  lilithNavView = view;
+}
+function lilithNavReplace(view, extra) {
+  var state = { lilithNav: view };
+  if (extra) { for (var k in extra) { if (Object.prototype.hasOwnProperty.call(extra, k)) state[k] = extra[k]; } }
+  try { history.replaceState(state, ""); } catch (e) {}
+  if (view === "colouring" || view === "picker") lilithNavUnder = "picker";
+  lilithNavView = view;
+}
+/* An in-page close button for the step on top of the stack: pop
+   its history entry and let the popstate handler do the closing,
+   so Back and the button always land in the same place. If that
+   step is not the current history step, just close it directly. */
+function lilithNavBack(view, directClose) {
+  if (lilithNavView === view) {
+    try { history.back(); return; } catch (e) {}
+  }
+  if (typeof directClose === "function") directClose();
+}
+window.addEventListener("popstate", function (ev) {
+  var newView = lilithNavStateView(ev.state);
+  var oldView = lilithNavView;
+  lilithNavView = newView;
+  if (newView !== "lightbox" && typeof closeGalleryLightbox === "function") {
+    var lbBox = document.getElementById("gallery-lightbox");
+    if (lbBox && !lbBox.hidden) closeGalleryLightbox(true);
+  }
+  if (oldView === "enlarged" && newView !== "enlarged" && lilithNavHandlers.closeEnlarged) {
+    lilithNavHandlers.closeEnlarged();
+  }
+  if (newView === "enlarged" && oldView !== "enlarged" && lilithNavHandlers.openEnlarged) {
+    lilithNavHandlers.openEnlarged();
+  }
+  if (newView === "lightbox" && oldView !== "lightbox" && ev.state && ev.state.entryId && typeof openGalleryLightbox === "function") {
+    openGalleryLightbox(ev.state.entryId, true);
+  }
+  if (oldView === "colouring" && newView === "picker") {
+    lilithNavScrollTo(document.getElementById("page-picker"));
+  } else if (oldView === "picker" && newView === "colouring") {
+    lilithNavScrollTo(document.getElementById("sheet-area"));
+  } else if (oldView === "lightbox" && newView !== "lightbox") {
+    lilithNavScrollTo(document.getElementById("gallery-section"));
+  }
+});
 
 /* ---- Saved progress, recent colours, and badges (all kept only on
    this phone, in the browser's local storage — no account, no signup,
@@ -4090,7 +4183,7 @@ function updateLightboxPicture(displayEntry) {
     } else { plaqueEl.hidden = true; plaqueEl.innerHTML = ""; }
   }
 }
-function openGalleryLightbox(entryId) {
+function openGalleryLightbox(entryId, fromPop) {
   var entry = findGalleryEntry(entryId);
   if (!entry) return;
   lightboxEntryId = entryId;
@@ -4108,7 +4201,16 @@ function openGalleryLightbox(entryId) {
   var openBtn = document.getElementById("lb-open-btn");
   if (openBtn) {
     openBtn.style.display = pageIdx >= 0 ? "" : "none";
-    openBtn.onclick = function () { closeGalleryLightbox(); loadPage(pageIdx); window.scrollTo(0, 0); };
+    openBtn.onclick = function () {
+      // Straight from this saved picture to its colouring page:
+      // the picture's history step becomes the colouring step, so
+      // Back from the colouring page still lands on the page
+      // picker, one step at a time.
+      closeGalleryLightbox(true);
+      loadPage(pageIdx);
+      if (typeof lilithNavReplace === "function") lilithNavReplace("colouring", { page: PAGES[pageIdx] ? PAGES[pageIdx].id : "" });
+      window.scrollTo(0, 0);
+    };
   }
   // Arm this picture's download links — the two pictures —
   // with their finished files now, while the
@@ -4118,7 +4220,8 @@ function openGalleryLightbox(entryId) {
   var delBtn = document.getElementById("lb-delete-btn");
   if (delBtn) delBtn.onclick = function () {
     var id = entry.id, ttl = entry.title;
-    closeGalleryLightbox();
+    closeGalleryLightbox(true);
+    if (typeof lilithNavReplace === "function" && lilithNavView === "lightbox") lilithNavReplace(lilithNavUnder);
     pendingGalleryDelete = { mode: "single", entryId: id, title: ttl };
     setGalleryStatus("");
     updateGalleryConfirmUI();
@@ -4129,10 +4232,13 @@ function openGalleryLightbox(entryId) {
   document.documentElement.classList.add("lb-lock");
   document.body.classList.add("lb-lock");
   try { box.scrollTop = 0; } catch (e) {}
+  // Opening a saved picture is one Back-button step: Back from
+  // here returns to the Gallery wall instead of leaving the book.
+  if (!fromPop && typeof lilithNavEnter === "function") lilithNavEnter("lightbox", { entryId: entryId });
   var closeBtn = document.getElementById("lb-close-btn");
   if (closeBtn) { try { closeBtn.focus(); } catch (e) {} }
 }
-function closeGalleryLightbox() {
+function closeGalleryLightbox(fromPop) {
   resetLbChange();
   resetLbDownload();
   var box = document.getElementById("gallery-lightbox");
@@ -4140,6 +4246,15 @@ function closeGalleryLightbox() {
   lightboxEntryId = "";
   document.documentElement.classList.remove("lb-lock");
   document.body.classList.remove("lb-lock");
+  // A close that did not come from the Back button and is not
+  // already popping this picture's history step (callers that
+  // replace the step themselves pass true): resync the current
+  // history entry to the step underneath, so the next Back press
+  // behaves for the view actually on screen.
+  if (!fromPop && typeof lilithNavView !== "undefined" && lilithNavView === "lightbox") {
+    lilithNavView = lilithNavUnder;
+    try { history.replaceState({ lilithNav: lilithNavView }, ""); } catch (e) {}
+  }
 }
 function renderGallery() {
   var grid = $("gallery-grid"), empty = $("gallery-empty");
@@ -4748,6 +4863,10 @@ function makePagePickRow(pg, idx) {
       loadPage(i);
       var sa = $("sheet-area");
       if (sa) { try { sa.scrollIntoView({ block: "start" }); } catch (e) { window.scrollTo(0, 0); } }
+      // Entering a colouring page is one Back-button step inside
+      // the book: Back from here returns to this page picker
+      // (the page gallery) instead of leaving the book.
+      if (typeof lilithNavEnter === "function") lilithNavEnter("colouring", { page: pg.id });
     });
   })(idx);
   return b;
@@ -5291,6 +5410,10 @@ function setTool(tool) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Back-button steps start at the page picker (the page gallery):
+  // this is the step Back leaves the book from, and the step Back
+  // from a colouring page returns to.
+  lilithNavInit();
   pageImg = $("page-img");
   colourCanvas = $("colour-canvas");
   colourCtx = colourCanvas.getContext("2d", { willReadFrequently: true });
@@ -5375,9 +5498,15 @@ document.addEventListener("DOMContentLoaded", function () {
     loadPage(t.index);
     var sa = $("sheet-area");
     if (sa) { try { sa.scrollIntoView({ block: "start" }); } catch (e) { window.scrollTo(0, 0); } }
+    lilithNavEnter("colouring", { page: t.page.id });
   });
-  $("prev-btn").addEventListener("click", function () { if (currentIndex > 0) loadPage(currentIndex - 1); });
-  $("next-btn").addEventListener("click", function () { if (currentIndex < PAGES.length - 1) loadPage(currentIndex + 1); });
+  // Previous / Next walk within the colouring step — they never
+  // add Back steps of their own, so Back from any page reached
+  // this way still returns to the page picker in one press. They
+  // do claim the colouring step if the reader got to the sheet
+  // without one (e.g. scrolled down to it), so Back still works.
+  $("prev-btn").addEventListener("click", function () { if (currentIndex > 0) { loadPage(currentIndex - 1); lilithNavEnter("colouring", { page: PAGES[currentIndex].id }); } });
+  $("next-btn").addEventListener("click", function () { if (currentIndex < PAGES.length - 1) { loadPage(currentIndex + 1); lilithNavEnter("colouring", { page: PAGES[currentIndex].id }); } });
 
   // Enlarge: show the current page bigger, IN the page. The sheet
   // itself is never copied — so the colouring, undo history, tool
@@ -5470,8 +5599,13 @@ document.addEventListener("DOMContentLoaded", function () {
       ? "Move around is on — drag with one finger to move around the big picture. Tap Move around again to go back to colouring."
       : "Move around is off — tap to fill, or drag to draw, as usual.");
   }
-  function openEnlarged() {
-    trackEvent("enlarge_open", { page: PAGES[currentIndex].id });
+  function openEnlarged(fromPop) {
+    if (!fromPop) {
+      trackEvent("enlarge_open", { page: PAGES[currentIndex].id });
+      // The enlarged view is one Back-button step: Back from here
+      // returns to the normal colouring view, not out of the book.
+      lilithNavEnter("enlarged", { page: PAGES[currentIndex].id });
+    }
     // The enlarged sheet is laid out 135% of the stage width (see the
     // CSS), so 100% here is already clearly bigger than the normal
     // view; on a phone start a step above that, at 130%.
@@ -5525,13 +5659,20 @@ document.addEventListener("DOMContentLoaded", function () {
     setStatus("Back to the normal view — your colouring is still on the page.");
     try { colourCanvas.focus({ preventScroll: true }); } catch (e) {}
   }
-  $("close-enlarge-btn").addEventListener("click", closeEnlarged);
-  $("close-enlarge-fab").addEventListener("click", closeEnlarged);
+  // Back-button wiring for the enlarged view: the popstate
+  // handler closes / reopens it through these, and every in-page
+  // way out (Close, ✕ Done, Escape, double-tap) goes through
+  // history, so Back and the buttons always agree.
+  lilithNavHandlers.closeEnlarged = closeEnlarged;
+  lilithNavHandlers.openEnlarged = function () { if (!isEnlarged()) openEnlarged(true); };
+  function closeEnlargedViaNav() { lilithNavBack("enlarged", closeEnlarged); }
+  $("close-enlarge-btn").addEventListener("click", closeEnlargedViaNav);
+  $("close-enlarge-fab").addEventListener("click", closeEnlargedViaNav);
   $("zoom-in-btn").addEventListener("click", function () { var c = stageCentreClient(); applyZoomAt(zoomPct + 25, c.x, c.y); });
   $("zoom-out-btn").addEventListener("click", function () { var c = stageCentreClient(); applyZoomAt(zoomPct - 25, c.x, c.y); });
   window.addEventListener("resize", function () { if (isEnlarged()) applyViewTransform(); });
   $("pan-toggle-btn").addEventListener("click", function () { setPanMode(!panMode); });
-  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") closeEnlarged(); });
+  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && isEnlarged()) closeEnlargedViaNav(); });
   // Ctrl+wheel over the big picture zooms at the pointer (desktop twin
   // of pinch).
   enlargeScroll.addEventListener("wheel", function (ev) {
@@ -5571,7 +5712,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var lastDotTap = null;        // a mouse/pen draw-tool dot just drawn: {clientX, clientY, at}
   function toggleEnlarged() {
     lastEnlargeToggleAt = Date.now();
-    if (isEnlarged()) closeEnlarged(); else openEnlarged();
+    if (isEnlarged()) closeEnlargedViaNav(); else openEnlarged();
   }
   function runTapAction(a) {
     if (!a || !pageReady) return;
@@ -6488,9 +6629,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
   // Gallery large view — Back to wall closes it; tapping the dark
-  // area outside the panel or pressing Escape closes it too.
+  // area outside the panel or pressing Escape closes it too. All
+  // three go through history (lilithNavBack), the same step the
+  // phone's Back button pops, so they can never disagree.
+  function closeLightboxViaNav() { lilithNavBack("lightbox", function () { closeGalleryLightbox(); }); }
   var lbCloseBtn = $("lb-close-btn");
-  if (lbCloseBtn) lbCloseBtn.addEventListener("click", function () { closeGalleryLightbox(); });
+  if (lbCloseBtn) lbCloseBtn.addEventListener("click", closeLightboxViaNav);
   // The download links: once a picture's file is made and
   // still matches this picture's saved frame / plaque, the tap
   // is the browser's own download of that file — this handler
@@ -6531,8 +6675,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
   var lbBox = $("gallery-lightbox");
-  if (lbBox) lbBox.addEventListener("click", function (ev) { if (ev.target === lbBox) closeGalleryLightbox(); });
-  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape") closeGalleryLightbox(); });
+  if (lbBox) lbBox.addEventListener("click", function (ev) { if (ev.target === lbBox) closeLightboxViaNav(); });
+  document.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && lbBox && !lbBox.hidden) closeLightboxViaNav(); });
   /* ---- Share my page, with options ----
      Tapping "Share my page" opens this options panel IMMEDIATELY,
      in a "Preparing your page…" state with animated dots, and only
