@@ -2,7 +2,7 @@
    Caches the app shell pieces that live alongside this file (images, icons,
    manifest) so repeat visits load fast. Everything is best-effort: if a
    cache step fails, the app still works straight from the network. */
-var CACHE = 'lilith-colouring-v6';
+var CACHE = 'lilith-colouring-v7';
 var FILES = [
   './manifest.json',
   './icon-192.png',
@@ -18,7 +18,8 @@ var FILES = [
   './media-generation-lilith-colouring-page-07-lilit-0-1bc9e865-97b3-4b8b-b78b-4ac0389e384a.webp',
   './lilith-page-10-with-her-cat.webp',
   './lilith-page-11-among-the-moonflowers.webp',
-  './lilith-page-12-beneath-the-crescent-moon.webp'
+  './lilith-page-12-beneath-the-crescent-moon.webp',
+  './lilith-page-13-among-the-standing-stones.webp'
 ];
 self.addEventListener('install', function (e) {
   e.waitUntil(
